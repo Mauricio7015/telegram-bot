@@ -8,7 +8,16 @@ Este projeto possui um bot do Telegram com opções de assinatura e um servidor 
 pip install -r requirements.txt
 ```
 
-Configure as variáveis de ambiente:
+As variáveis podem ser definidas no ambiente ou em um arquivo `.env` na raiz do
+projeto com o seguinte formato:
+
+```
+TELEGRAM_BOT_TOKEN=seu_token
+MERCADO_PAGO_TOKEN=opcional
+CRON_HOUR=9
+```
+
+Essas variáveis são:
 
 - `TELEGRAM_BOT_TOKEN`: token do bot.
 - Os canais público e privado são configurados pela API.
