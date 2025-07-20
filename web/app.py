@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from bot.database import get_session, User, PublicPost, PrivatePost, get_bot_config
@@ -6,6 +8,12 @@ from bot.poster import bot as telegram_bot
 from bot.config import set_channels
 
 app = FastAPI()
+app.mount('/static', StaticFiles(directory='web/static'), name='static')
+
+
+@app.get('/')
+def index():
+    return FileResponse('web/static/index.html')
 
 
 class PostIn(BaseModel):
