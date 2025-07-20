@@ -11,8 +11,7 @@ pip install -r requirements.txt
 Configure as variáveis de ambiente:
 
 - `TELEGRAM_BOT_TOKEN`: token do bot.
-- `PUBLIC_CHANNEL_ID`: id do canal público.
-- `PRIVATE_CHANNEL_ID`: id do canal privado.
+- Os canais público e privado são configurados pela API.
 - `MERCADO_PAGO_TOKEN`: token do Mercado Pago (opcional).
 - `CRON_HOUR`: horário (0-23) para os posts agendados (padrão 9).
 
@@ -39,6 +38,9 @@ A API fornece os seguintes endpoints:
 - `POST /posts/public` — adiciona um post público.
 - `POST /posts/private` — adiciona um post privado.
 - `GET /stats` — exibe estatísticas de usuários e assinaturas.
+- `GET /channels/available` — lista canais que o bot possui acesso.
+- `GET /channels/config` — obtém os canais configurados.
+- `POST /channels/config` — define o canal público e o privado.
 
 ## Funções Principais
 
@@ -71,7 +73,7 @@ A API fornece os seguintes endpoints:
 
 ### `bot/database.py`
 
-Contém os modelos SQLAlchemy (`User`, `PublicPost`, `PrivatePost`) e a função `get_session()` para obter uma sessão do banco.
+Contém os modelos SQLAlchemy (`User`, `PublicPost`, `PrivatePost`, `BotConfig`) e a função `get_session()` para obter uma sessão do banco.
 
 ## Executando testes
 

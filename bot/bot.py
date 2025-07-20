@@ -1,7 +1,6 @@
 from telegram.ext import Updater, CommandHandler
-from telegram import ParseMode
 
-from .config import BOT_TOKEN, PRIVATE_CHANNEL_ID
+from .config import BOT_TOKEN
 from .subscriptions import create_user
 from .subscriptions import MONTHLY_PRICE, LIFETIME_PRICE
 from .payments import create_payment
