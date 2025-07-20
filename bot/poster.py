@@ -13,16 +13,40 @@ bot = Bot(BOT_TOKEN)
 
 
 def _send_media(chat_id: int, text: str, files: List[str]):
-    media = []
-    for path in files:
-        if path.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.mpg', '.mpeg')):
-            media.append(InputMediaVideo(open(path, 'rb')))
+    """Send media files with optional text in a single message."""
+    if not files:
+        if text:
+            bot.send_message(chat_id=chat_id, text=text)
+        return
+
+    video_exts = (
+        '.mp4',
+        '.mov',
+        '.avi',
+        '.mkv',
+        '.webm',
+        '.mpg',
+        '.mpeg',
+    )
+
+    if len(files) == 1:
+        path = files[0]
+        if path.lower().endswith(video_exts):
+            with open(path, 'rb') as f:
+                bot.send_video(chat_id=chat_id, video=f, caption=text or None)
         else:
-            media.append(InputMediaPhoto(open(path, 'rb')))
-    if media:
-        bot.send_media_group(chat_id=chat_id, media=media)
-    if text:
-        bot.send_message(chat_id=chat_id, text=text)
+            with open(path, 'rb') as f:
+                bot.send_photo(chat_id=chat_id, photo=f, caption=text or None)
+        return
+
+    media = []
+    for i, path in enumerate(files):
+        caption = text if i == 0 else None
+        if path.lower().endswith(video_exts):
+            media.append(InputMediaVideo(open(path, 'rb'), caption=caption))
+        else:
+            media.append(InputMediaPhoto(open(path, 'rb'), caption=caption))
+    bot.send_media_group(chat_id=chat_id, media=media)
 
 
 def send_public_post(session: Session, post_id: int | None = None):
