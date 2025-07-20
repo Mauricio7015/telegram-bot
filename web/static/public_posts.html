@@ -31,7 +31,16 @@ async function loadPublicPosts() {
         if (!p.sent) {
             const btn = document.createElement('button');
             btn.textContent = 'Enviar Agora';
-            btn.onclick = () => sendPublicPost(p.id);
+            btn.onclick = () => sendPublicPost(p.id, false);
+            li.appendChild(btn);
+        } else {
+            const btn = document.createElement('button');
+            btn.textContent = 'Reenviar';
+            btn.onclick = () => {
+                if (confirm('Deseja reenviar este post?')) {
+                    sendPublicPost(p.id, true);
+                }
+            };
             li.appendChild(btn);
         }
         if (p.images) {
@@ -76,8 +85,8 @@ async function addPublicPost() {
     }
 }
 
-async function sendPublicPost(id) {
-    const res = await fetch(`/posts/public/${id}/send`, { method: 'POST' });
+async function sendPublicPost(id, resend) {
+    const res = await fetch(`/posts/public/${id}/send?resend=${resend}`, { method: 'POST' });
     if (res.ok) {
         loadPublicPosts();
     } else {
