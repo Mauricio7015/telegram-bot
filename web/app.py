@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
-from bot.database import get_session, User, PublicPost, PrivatePost
+from bot.database import get_session, User, PublicPost, PrivatePost, get_bot_config
+from bot.poster import bot as telegram_bot
+from bot.config import set_channels
 
 app = FastAPI()
 
@@ -10,6 +11,11 @@ app = FastAPI()
 class PostIn(BaseModel):
     text: str
     images: str  # comma separated paths
+
+
+class ChannelConfigIn(BaseModel):
+    public_channel_id: int
+    private_channel_id: int
 
 
 @app.post('/posts/public')
@@ -43,3 +49,42 @@ def stats():
         'assinaturas_mensais': monthly,
         'assinaturas_vitalicias': lifetime,
     }
+
+
+@app.get('/channels/config')
+def get_channels():
+    session = get_session()
+    config = get_bot_config(session)
+    return {
+        'public_channel_id': config.public_channel_id,
+        'private_channel_id': config.private_channel_id,
+    }
+
+
+@app.post('/channels/config')
+def set_channels_endpoint(cfg: ChannelConfigIn):
+    try:
+        telegram_bot.get_chat(cfg.public_channel_id)
+        telegram_bot.get_chat(cfg.private_channel_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail='Bot sem acesso a algum canal')
+    set_channels(cfg.public_channel_id, cfg.private_channel_id)
+    return {'status': 'ok'}
+
+
+@app.get('/channels/available')
+def list_channels():
+    updates = telegram_bot.get_updates()
+    channels = {}
+    for u in updates:
+        chat = None
+        if u.channel_post:
+            chat = u.channel_post.chat
+        elif u.my_chat_member:
+            chat = u.my_chat_member.chat
+        elif u.message and u.message.chat.type == 'channel':
+            chat = u.message.chat
+        if chat:
+            channels[chat.id] = chat.title or ''
+    data = [{'id': cid, 'title': title} for cid, title in channels.items()]
+    return {'channels': data}
