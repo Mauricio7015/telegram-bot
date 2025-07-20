@@ -20,13 +20,15 @@ class PublicPost(Base):
     __tablename__ = 'public_posts'
     id = Column(Integer, primary_key=True)
     text = Column(String)
-    images = Column(String)  # comma separated paths
+    images = Column(String)  # comma separated paths to images/videos
+    sent = Column(Boolean, default=False)
 
 class PrivatePost(Base):
     __tablename__ = 'private_posts'
     id = Column(Integer, primary_key=True)
     text = Column(String)
-    images = Column(String)
+    images = Column(String)  # comma separated paths to images/videos
+    sent = Column(Boolean, default=False)
 
 
 class BotConfig(Base):

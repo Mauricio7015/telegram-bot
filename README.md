@@ -44,14 +44,16 @@ uvicorn web.app:app --reload
 
 A API fornece os seguintes endpoints:
 
-- `POST /posts/public` — adiciona um post público.
-- `POST /posts/private` — adiciona um post privado.
+- `POST /posts/public` — adiciona um post público (campo `text` e múltiplos arquivos `files`).
+- `POST /posts/private` — adiciona um post privado (campo `text` e múltiplos arquivos `files`).
 - `GET /posts/public` — lista posts públicos agendados.
 - `GET /posts/private` — lista posts privados agendados.
 - `GET /stats` — exibe estatísticas de usuários e assinaturas.
 - `GET /channels/available` — lista canais que o bot possui acesso.
 - `GET /channels/config` — obtém os canais configurados.
 - `POST /channels/config` — define o canal público e o privado.
+
+Arquivos enviados são gravados na pasta `uploads` e podem ser acessados via `/uploads`.
 
 ### Interface Web
 
