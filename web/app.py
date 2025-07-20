@@ -14,7 +14,7 @@ from bot.database import (
     migrate,
 )
 from telegram.error import TimedOut, NetworkError
-from bot.poster import bot as telegram_bot
+from bot.poster import bot as telegram_bot, send_public_post, send_private_post
 from bot.config import set_channels
 
 migrate()
@@ -63,6 +63,18 @@ def list_public_posts():
     return {'posts': data}
 
 
+@app.post('/posts/public/{post_id}/send')
+def send_public_post_endpoint(post_id: int):
+    session = get_session()
+    post = session.query(PublicPost).filter_by(id=post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail='Post não encontrado')
+    if post.sent:
+        raise HTTPException(status_code=400, detail='Post já enviado')
+    send_public_post(session, post_id=post_id)
+    return {'status': 'ok'}
+
+
 @app.post('/posts/private')
 async def add_private_post(text: str = Form(...), files: List[UploadFile] = File(None)):
     session = get_session()
@@ -88,6 +100,18 @@ def list_private_posts():
         for p in posts
     ]
     return {'posts': data}
+
+
+@app.post('/posts/private/{post_id}/send')
+def send_private_post_endpoint(post_id: int):
+    session = get_session()
+    post = session.query(PrivatePost).filter_by(id=post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail='Post não encontrado')
+    if post.sent:
+        raise HTTPException(status_code=400, detail='Post já enviado')
+    send_private_post(session, post_id=post_id)
+    return {'status': 'ok'}
 
 
 @app.get('/stats')
