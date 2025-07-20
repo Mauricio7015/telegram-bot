@@ -3,114 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Painel do Bot</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        section { margin-bottom: 2em; }
-        textarea { width: 100%; height: 60px; }
-        input[type=text] { width: 100%; }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <h1>Painel do Bot</h1>
-
-<section>
-    <h2>Adicionar Post Público</h2>
-    <textarea id="public-text" placeholder="Texto"></textarea><br>
-    <input id="public-images" type="text" placeholder="imagem1.jpg, imagem2.jpg"><br>
-    <button onclick="addPublicPost()">Enviar</button>
-</section>
-
-<section>
-    <h2>Adicionar Post Privado</h2>
-    <textarea id="private-text" placeholder="Texto"></textarea><br>
-    <input id="private-images" type="text" placeholder="imagem1.jpg, imagem2.jpg"><br>
-    <button onclick="addPrivatePost()">Enviar</button>
-</section>
-
-<section>
-    <h2>Configurar Canais</h2>
-    <button onclick="loadChannelsConfig()">Carregar Configuração Atual</button><br>
-    <pre id="current-channels"></pre>
-    <input id="public-channel" type="text" placeholder="ID canal público"><br>
-    <input id="private-channel" type="text" placeholder="ID canal privado"><br>
-    <button onclick="setChannels()">Salvar</button>
-</section>
-
-<section>
-    <h2>Canais Disponíveis</h2>
-    <button onclick="loadAvailableChannels()">Listar</button>
-    <ul id="available-channels"></ul>
-</section>
-
-<section>
-    <h2>Estatísticas</h2>
-    <button onclick="loadStats()">Atualizar</button>
-    <pre id="stats"></pre>
-</section>
-
-<script>
-async function addPublicPost() {
-    const body = {
-        text: document.getElementById('public-text').value,
-        images: document.getElementById('public-images').value
-    };
-    const res = await fetch('/posts/public', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    });
-    alert('Status: ' + res.status);
-}
-
-async function addPrivatePost() {
-    const body = {
-        text: document.getElementById('private-text').value,
-        images: document.getElementById('private-images').value
-    };
-    const res = await fetch('/posts/private', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    });
-    alert('Status: ' + res.status);
-}
-
-async function loadChannelsConfig() {
-    const res = await fetch('/channels/config');
-    const data = await res.json();
-    document.getElementById('current-channels').textContent = JSON.stringify(data, null, 2);
-}
-
-async function setChannels() {
-    const body = {
-        public_channel_id: parseInt(document.getElementById('public-channel').value),
-        private_channel_id: parseInt(document.getElementById('private-channel').value)
-    };
-    const res = await fetch('/channels/config', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    });
-    alert('Status: ' + res.status);
-}
-
-async function loadAvailableChannels() {
-    const res = await fetch('/channels/available');
-    const data = await res.json();
-    const ul = document.getElementById('available-channels');
-    ul.innerHTML = '';
-    for (const ch of data.channels) {
-        const li = document.createElement('li');
-        li.textContent = ch.id + ' - ' + ch.title;
-        ul.appendChild(li);
-    }
-}
-
-async function loadStats() {
-    const res = await fetch('/stats');
-    const data = await res.json();
-    document.getElementById('stats').textContent = JSON.stringify(data, null, 2);
-}
-</script>
+<nav>
+    <a href="/static/private_posts.html">Posts Privados</a>
+    <a href="/static/public_posts.html">Posts Públicos</a>
+    <a href="/static/channels.html">Configuração de Canais</a>
+    <a href="/static/stats.html">Estatísticas</a>
+</nav>
 </body>
 </html>

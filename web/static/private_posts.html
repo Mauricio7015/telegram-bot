@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Posts Privados</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <a href="/static/index.html">Início</a>
+    <a href="/static/public_posts.html">Posts Públicos</a>
+    <a href="/static/channels.html">Configuração de Canais</a>
+    <a href="/static/stats.html">Estatísticas</a>
+</nav>
+<h2>Posts Agendados (Privado)</h2>
+<ul id="private-posts"></ul>
+<h3>Novo Post</h3>
+<textarea id="private-text" placeholder="Texto"></textarea>
+<input id="private-images" type="text" placeholder="imagem1.jpg, imagem2.jpg">
+<button onclick="addPrivatePost()">Enviar</button>
+<script>
+async function loadPrivatePosts() {
+    const res = await fetch('/posts/private');
+    const data = await res.json();
+    const ul = document.getElementById('private-posts');
+    ul.innerHTML = '';
+    for (const p of data.posts) {
+        const li = document.createElement('li');
+        li.className = 'list';
+        li.textContent = p.text + (p.images ? ' [' + p.images + ']' : '');
+        ul.appendChild(li);
+    }
+}
+async function addPrivatePost() {
+    const body = {
+        text: document.getElementById('private-text').value,
+        images: document.getElementById('private-images').value
+    };
+    const res = await fetch('/posts/private', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+    if (res.ok) {
+        document.getElementById('private-text').value = '';
+        document.getElementById('private-images').value = '';
+        loadPrivatePosts();
+    } else {
+        alert('Erro ao enviar');
+    }
+}
+loadPrivatePosts();
+</script>
+</body>
+</html>
