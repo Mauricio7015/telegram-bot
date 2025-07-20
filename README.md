@@ -1,0 +1,79 @@
+# Telegram Bot
+
+Este projeto possui um bot do Telegram com opções de assinatura e um servidor FastAPI para gerenciamento de posts. Abaixo estão instruções de uso e descrição das funções principais.
+
+## Requisitos
+
+```bash
+pip install -r requirements.txt
+```
+
+Configure as variáveis de ambiente:
+
+- `TELEGRAM_BOT_TOKEN`: token do bot.
+- `PUBLIC_CHANNEL_ID`: id do canal público.
+- `PRIVATE_CHANNEL_ID`: id do canal privado.
+- `MERCADO_PAGO_TOKEN`: token do Mercado Pago (opcional).
+- `CRON_HOUR`: horário (0-23) para os posts agendados (padrão 9).
+
+## Iniciando os servidores
+
+### Bot + Scheduler
+
+Execute `main.py` para iniciar o bot e o agendador de posts:
+
+```bash
+python main.py
+```
+
+### API Web
+
+Execute o servidor FastAPI com `uvicorn`:
+
+```bash
+uvicorn web.app:app --reload
+```
+
+A API fornece os seguintes endpoints:
+
+- `POST /posts/public` — adiciona um post público.
+- `POST /posts/private` — adiciona um post privado.
+- `GET /stats` — exibe estatísticas de usuários e assinaturas.
+
+## Funções Principais
+
+### `bot/bot.py`
+
+- `start_bot()` — inicia o bot do Telegram.
+- `start(update, context)` — envia a mensagem inicial de boas‑vindas.
+- `mensal(update, context)` — informa o link de pagamento mensal.
+- `vitalicio(update, context)` — informa o link de pagamento vitalício.
+
+### `bot/scheduler.py`
+
+- `start()` — inicia o agendador `APScheduler` para publicações diárias.
+
+### `bot/poster.py`
+
+- `send_public_post(session)` — envia um post para o canal público.
+- `send_private_post(session)` — envia um post para o canal privado.
+
+### `bot/subscriptions.py`
+
+- `create_user(telegram_id, username)` — registra o usuário no banco.
+- `activate_monthly(user)` — ativa o plano mensal.
+- `activate_lifetime(user)` — ativa o plano vitalício.
+- `check_expirations()` — verifica expirações de planos mensais.
+
+### `bot/payments.py`
+
+- `create_payment(amount, description)` — gera um link de pagamento fictício.
+
+### `bot/database.py`
+
+Contém os modelos SQLAlchemy (`User`, `PublicPost`, `PrivatePost`) e a função `get_session()` para obter uma sessão do banco.
+
+## Executando testes
+
+Não há testes automatizados, portanto basta seguir os passos de execução acima.
+
