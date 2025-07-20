@@ -10,6 +10,7 @@ from bot.database import (
     PrivatePost,
     get_bot_config,
 )
+from telegram.error import TimedOut, NetworkError
 from bot.poster import bot as telegram_bot
 from bot.config import set_channels
 
@@ -110,7 +111,10 @@ def set_channels_endpoint(cfg: ChannelConfigIn):
 
 @app.get('/channels/available')
 def list_channels():
-    updates = telegram_bot.get_updates()
+    try:
+        updates = telegram_bot.get_updates()
+    except (TimedOut, NetworkError):
+        updates = []
     channels = {}
     for u in updates:
         chat = None
