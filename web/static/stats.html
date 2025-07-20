@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estatísticas</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <a href="/static/index.html">Início</a>
+    <a href="/static/private_posts.html">Posts Privados</a>
+    <a href="/static/public_posts.html">Posts Públicos</a>
+    <a href="/static/channels.html">Configuração de Canais</a>
+</nav>
+<h2>Estatísticas</h2>
+<div id="stats" class="stats-grid"></div>
+<script>
+async function loadStats() {
+    const res = await fetch('/stats');
+    const data = await res.json();
+    const grid = document.getElementById('stats');
+    grid.innerHTML = '';
+    const items = [
+        {label: 'Usuários Públicos', value: data.usuarios_publicos},
+        {label: 'Usuários Privados', value: data.usuarios_privados},
+        {label: 'Assinaturas Mensais', value: data.assinaturas_mensais},
+        {label: 'Assinaturas Vitalícias', value: data.assinaturas_vitalicias},
+    ];
+    for (const it of items) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h3>${it.label}</h3><p>${it.value}</p>`;
+        grid.appendChild(card);
+    }
+}
+loadStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Posts Públicos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <a href="/static/index.html">Início</a>
+    <a href="/static/private_posts.html">Posts Privados</a>
+    <a href="/static/channels.html">Configuração de Canais</a>
+    <a href="/static/stats.html">Estatísticas</a>
+</nav>
+<h2>Posts Agendados (Público)</h2>
+<ul id="public-posts"></ul>
+<h3>Novo Post</h3>
+<textarea id="public-text" placeholder="Texto"></textarea>
+<input id="public-images" type="text" placeholder="imagem1.jpg, imagem2.jpg">
+<button onclick="addPublicPost()">Enviar</button>
+<script>
+async function loadPublicPosts() {
+    const res = await fetch('/posts/public');
+    const data = await res.json();
+    const ul = document.getElementById('public-posts');
+    ul.innerHTML = '';
+    for (const p of data.posts) {
+        const li = document.createElement('li');
+        li.className = 'list';
+        li.textContent = p.text + (p.images ? ' [' + p.images + ']' : '');
+        ul.appendChild(li);
+    }
+}
+async function addPublicPost() {
+    const body = {
+        text: document.getElementById('public-text').value,
+        images: document.getElementById('public-images').value
+    };
+    const res = await fetch('/posts/public', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+    if (res.ok) {
+        document.getElementById('public-text').value = '';
+        document.getElementById('public-images').value = '';
+        loadPublicPosts();
+    } else {
+        alert('Erro ao enviar');
+    }
+}
+loadPublicPosts();
+</script>
+</body>
+</html>

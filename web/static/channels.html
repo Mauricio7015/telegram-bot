@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurar Canais</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+    <a href="/static/index.html">Início</a>
+    <a href="/static/private_posts.html">Posts Privados</a>
+    <a href="/static/public_posts.html">Posts Públicos</a>
+    <a href="/static/stats.html">Estatísticas</a>
+</nav>
+<h2>Configurar Canais</h2>
+<button onclick="loadChannels()">Carregar Configuração Atual</button>
+<pre id="current-channels"></pre>
+<input id="public-channel" type="text" placeholder="ID canal público">
+<input id="private-channel" type="text" placeholder="ID canal privado">
+<button onclick="saveChannels()">Salvar</button>
+<script>
+async function loadChannels() {
+    const res = await fetch('/channels/config');
+    const data = await res.json();
+    document.getElementById('current-channels').textContent = JSON.stringify(data, null, 2);
+    document.getElementById('public-channel').value = data.public_channel_id || '';
+    document.getElementById('private-channel').value = data.private_channel_id || '';
+}
+async function saveChannels() {
+    const body = {
+        public_channel_id: parseInt(document.getElementById('public-channel').value),
+        private_channel_id: parseInt(document.getElementById('private-channel').value)
+    };
+    const res = await fetch('/channels/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+    if(res.ok) alert('Salvo com sucesso');
+    else alert('Erro ao salvar');
+}
+loadChannels();
+</script>
+</body>
+</html>

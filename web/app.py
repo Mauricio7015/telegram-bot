@@ -3,7 +3,13 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from bot.database import get_session, User, PublicPost, PrivatePost, get_bot_config
+from bot.database import (
+    get_session,
+    User,
+    PublicPost,
+    PrivatePost,
+    get_bot_config,
+)
 from bot.poster import bot as telegram_bot
 from bot.config import set_channels
 
@@ -35,6 +41,17 @@ def add_public_post(post: PostIn):
     return {'status': 'ok'}
 
 
+@app.get('/posts/public')
+def list_public_posts():
+    session = get_session()
+    posts = session.query(PublicPost).order_by(PublicPost.id).all()
+    data = [
+        {'id': p.id, 'text': p.text, 'images': p.images}
+        for p in posts
+    ]
+    return {'posts': data}
+
+
 @app.post('/posts/private')
 def add_private_post(post: PostIn):
     session = get_session()
@@ -42,6 +59,17 @@ def add_private_post(post: PostIn):
     session.add(obj)
     session.commit()
     return {'status': 'ok'}
+
+
+@app.get('/posts/private')
+def list_private_posts():
+    session = get_session()
+    posts = session.query(PrivatePost).order_by(PrivatePost.id).all()
+    data = [
+        {'id': p.id, 'text': p.text, 'images': p.images}
+        for p in posts
+    ]
+    return {'posts': data}
 
 
 @app.get('/stats')
