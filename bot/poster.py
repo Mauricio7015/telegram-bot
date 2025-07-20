@@ -25,13 +25,16 @@ def _send_media(chat_id: int, text: str, files: List[str]):
         bot.send_message(chat_id=chat_id, text=text)
 
 
-def send_public_post(session: Session):
-    post = (
-        session.query(PublicPost)
-        .filter_by(sent=False)
-        .order_by(PublicPost.id)
-        .first()
-    )
+def send_public_post(session: Session, post_id: int | None = None):
+    if post_id is not None:
+        post = session.query(PublicPost).filter_by(id=post_id, sent=False).first()
+    else:
+        post = (
+            session.query(PublicPost)
+            .filter_by(sent=False)
+            .order_by(PublicPost.id)
+            .first()
+        )
     if not post:
         return
     images = [img.strip() for img in (post.images or '').split(',') if img.strip()]
@@ -42,13 +45,16 @@ def send_public_post(session: Session):
     session.commit()
 
 
-def send_private_post(session: Session):
-    post = (
-        session.query(PrivatePost)
-        .filter_by(sent=False)
-        .order_by(PrivatePost.id)
-        .first()
-    )
+def send_private_post(session: Session, post_id: int | None = None):
+    if post_id is not None:
+        post = session.query(PrivatePost).filter_by(id=post_id, sent=False).first()
+    else:
+        post = (
+            session.query(PrivatePost)
+            .filter_by(sent=False)
+            .order_by(PrivatePost.id)
+            .first()
+        )
     if not post:
         return
     images = [img.strip() for img in (post.images or '').split(',') if img.strip()]

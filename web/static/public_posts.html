@@ -28,6 +28,12 @@ async function loadPublicPosts() {
         const li = document.createElement('li');
         li.className = 'list';
         li.innerHTML = `<strong>${p.sent ? 'Enviado' : 'Pendente'}</strong><p>${p.text}</p>`;
+        if (!p.sent) {
+            const btn = document.createElement('button');
+            btn.textContent = 'Enviar Agora';
+            btn.onclick = () => sendPublicPost(p.id);
+            li.appendChild(btn);
+        }
         if (p.images) {
             const files = p.images.split(',').map(s => s.trim()).filter(s => s);
             for (const f of files) {
@@ -64,6 +70,15 @@ async function addPublicPost() {
     if (res.ok) {
         document.getElementById('public-text').value = '';
         document.getElementById('public-files').value = '';
+        loadPublicPosts();
+    } else {
+        alert('Erro ao enviar');
+    }
+}
+
+async function sendPublicPost(id) {
+    const res = await fetch(`/posts/public/${id}/send`, { method: 'POST' });
+    if (res.ok) {
         loadPublicPosts();
     } else {
         alert('Erro ao enviar');

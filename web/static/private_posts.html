@@ -28,6 +28,12 @@ async function loadPrivatePosts() {
         const li = document.createElement('li');
         li.className = 'list';
         li.innerHTML = `<strong>${p.sent ? 'Enviado' : 'Pendente'}</strong><p>${p.text}</p>`;
+        if (!p.sent) {
+            const btn = document.createElement('button');
+            btn.textContent = 'Enviar Agora';
+            btn.onclick = () => sendPrivatePost(p.id);
+            li.appendChild(btn);
+        }
         if (p.images) {
             const files = p.images.split(',').map(s => s.trim()).filter(s => s);
             for (const f of files) {
@@ -64,6 +70,15 @@ async function addPrivatePost() {
     if (res.ok) {
         document.getElementById('private-text').value = '';
         document.getElementById('private-files').value = '';
+        loadPrivatePosts();
+    } else {
+        alert('Erro ao enviar');
+    }
+}
+
+async function sendPrivatePost(id) {
+    const res = await fetch(`/posts/private/${id}/send`, { method: 'POST' });
+    if (res.ok) {
         loadPrivatePosts();
     } else {
         alert('Erro ao enviar');
