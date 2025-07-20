@@ -1,6 +1,12 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file if present
+load_dotenv()
 
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+if not BOT_TOKEN:
+    raise RuntimeError('TELEGRAM_BOT_TOKEN environment variable not set')
 MERCADO_PAGO_TOKEN = os.getenv('MERCADO_PAGO_TOKEN')
 
 # Default cron hour for daily posts
