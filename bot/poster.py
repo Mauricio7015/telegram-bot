@@ -1,5 +1,5 @@
 from typing import List
-from telegram import Bot, InputMediaPhoto
+from telegram import Bot, InputMediaPhoto, InputMediaVideo
 from sqlalchemy.orm import Session
 
 from .config import (
@@ -12,8 +12,13 @@ from .database import PublicPost, PrivatePost
 bot = Bot(BOT_TOKEN)
 
 
-def _send_images(chat_id: int, text: str, images: List[str]):
-    media = [InputMediaPhoto(open(path, 'rb')) for path in images]
+def _send_media(chat_id: int, text: str, files: List[str]):
+    media = []
+    for path in files:
+        if path.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.mpg', '.mpeg')):
+            media.append(InputMediaVideo(open(path, 'rb')))
+        else:
+            media.append(InputMediaPhoto(open(path, 'rb')))
     if media:
         bot.send_media_group(chat_id=chat_id, media=media)
     if text:
@@ -21,24 +26,34 @@ def _send_images(chat_id: int, text: str, images: List[str]):
 
 
 def send_public_post(session: Session):
-    post = session.query(PublicPost).order_by(PublicPost.id).first()
+    post = (
+        session.query(PublicPost)
+        .filter_by(sent=False)
+        .order_by(PublicPost.id)
+        .first()
+    )
     if not post:
         return
     images = [img.strip() for img in (post.images or '').split(',') if img.strip()]
     channel_id = get_public_channel_id()
     if channel_id:
-        _send_images(channel_id, post.text, images)
-    session.delete(post)
+        _send_media(channel_id, post.text, images)
+    post.sent = True
     session.commit()
 
 
 def send_private_post(session: Session):
-    post = session.query(PrivatePost).order_by(PrivatePost.id).first()
+    post = (
+        session.query(PrivatePost)
+        .filter_by(sent=False)
+        .order_by(PrivatePost.id)
+        .first()
+    )
     if not post:
         return
     images = [img.strip() for img in (post.images or '').split(',') if img.strip()]
     channel_id = get_private_channel_id()
     if channel_id:
-        _send_images(channel_id, post.text, images)
-    session.delete(post)
+        _send_media(channel_id, post.text, images)
+    post.sent = True
     session.commit()

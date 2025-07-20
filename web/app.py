@@ -25,7 +25,7 @@ def index():
 
 class PostIn(BaseModel):
     text: str
-    images: str  # comma separated paths
+    images: str  # comma separated paths to images or videos
 
 
 class ChannelConfigIn(BaseModel):
@@ -47,7 +47,7 @@ def list_public_posts():
     session = get_session()
     posts = session.query(PublicPost).order_by(PublicPost.id).all()
     data = [
-        {'id': p.id, 'text': p.text, 'images': p.images}
+        {'id': p.id, 'text': p.text, 'images': p.images, 'sent': p.sent}
         for p in posts
     ]
     return {'posts': data}
@@ -67,7 +67,7 @@ def list_private_posts():
     session = get_session()
     posts = session.query(PrivatePost).order_by(PrivatePost.id).all()
     data = [
-        {'id': p.id, 'text': p.text, 'images': p.images}
+        {'id': p.id, 'text': p.text, 'images': p.images, 'sent': p.sent}
         for p in posts
     ]
     return {'posts': data}

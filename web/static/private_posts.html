@@ -16,7 +16,7 @@
 <ul id="private-posts"></ul>
 <h3>Novo Post</h3>
 <textarea id="private-text" placeholder="Texto"></textarea>
-<input id="private-images" type="text" placeholder="imagem1.jpg, imagem2.jpg">
+<input id="private-images" type="text" placeholder="arquivo1.jpg, video1.mp4">
 <button onclick="addPrivatePost()">Enviar</button>
 <script>
 async function loadPrivatePosts() {
@@ -27,7 +27,24 @@ async function loadPrivatePosts() {
     for (const p of data.posts) {
         const li = document.createElement('li');
         li.className = 'list';
-        li.textContent = p.text + (p.images ? ' [' + p.images + ']' : '');
+        li.innerHTML = `<strong>${p.sent ? 'Enviado' : 'Pendente'}</strong><p>${p.text}</p>`;
+        if (p.images) {
+            const files = p.images.split(',').map(s => s.trim()).filter(s => s);
+            for (const f of files) {
+                if (f.match(/\.(mp4|mov|avi|mkv|webm|mpg|mpeg)$/i)) {
+                    const vid = document.createElement('video');
+                    vid.src = f;
+                    vid.controls = true;
+                    vid.width = 200;
+                    li.appendChild(vid);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = f;
+                    img.width = 200;
+                    li.appendChild(img);
+                }
+            }
+        }
         ul.appendChild(li);
     }
 }
