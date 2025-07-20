@@ -16,7 +16,7 @@
 <ul id="public-posts"></ul>
 <h3>Novo Post</h3>
 <textarea id="public-text" placeholder="Texto"></textarea>
-<input id="public-images" type="text" placeholder="arquivo1.jpg, video1.mp4">
+<input id="public-files" type="file" multiple>
 <button onclick="addPublicPost()">Enviar</button>
 <script>
 async function loadPublicPosts() {
@@ -31,15 +31,16 @@ async function loadPublicPosts() {
         if (p.images) {
             const files = p.images.split(',').map(s => s.trim()).filter(s => s);
             for (const f of files) {
+                const src = '/' + f;
                 if (f.match(/\.(mp4|mov|avi|mkv|webm|mpg|mpeg)$/i)) {
                     const vid = document.createElement('video');
-                    vid.src = f;
+                    vid.src = src;
                     vid.controls = true;
                     vid.width = 200;
                     li.appendChild(vid);
                 } else {
                     const img = document.createElement('img');
-                    img.src = f;
+                    img.src = src;
                     img.width = 200;
                     li.appendChild(img);
                 }
@@ -49,18 +50,20 @@ async function loadPublicPosts() {
     }
 }
 async function addPublicPost() {
-    const body = {
-        text: document.getElementById('public-text').value,
-        images: document.getElementById('public-images').value
-    };
+    const text = document.getElementById('public-text').value;
+    const files = document.getElementById('public-files').files;
+    const formData = new FormData();
+    formData.append('text', text);
+    for (const f of files) {
+        formData.append('files', f);
+    }
     const res = await fetch('/posts/public', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+        body: formData
     });
     if (res.ok) {
         document.getElementById('public-text').value = '';
-        document.getElementById('public-images').value = '';
+        document.getElementById('public-files').value = '';
         loadPublicPosts();
     } else {
         alert('Erro ao enviar');

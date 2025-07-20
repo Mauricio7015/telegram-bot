@@ -1,7 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from typing import List
+import os
 
 from bot.database import (
     get_session,
@@ -16,16 +18,14 @@ from bot.config import set_channels
 
 app = FastAPI()
 app.mount('/static', StaticFiles(directory='web/static'), name='static')
+UPLOAD_DIR = 'uploads'
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount('/uploads', StaticFiles(directory=UPLOAD_DIR), name='uploads')
 
 
 @app.get('/')
 def index():
     return FileResponse('web/static/index.html')
-
-
-class PostIn(BaseModel):
-    text: str
-    images: str  # comma separated paths to images or videos
 
 
 class ChannelConfigIn(BaseModel):
@@ -34,9 +34,16 @@ class ChannelConfigIn(BaseModel):
 
 
 @app.post('/posts/public')
-def add_public_post(post: PostIn):
+async def add_public_post(text: str = Form(...), files: List[UploadFile] = File(None)):
     session = get_session()
-    obj = PublicPost(text=post.text, images=post.images)
+    filenames = []
+    if files:
+        for f in files:
+            dest = os.path.join(UPLOAD_DIR, f.filename)
+            with open(dest, 'wb') as out:
+                out.write(await f.read())
+            filenames.append(dest)
+    obj = PublicPost(text=text, images=','.join(filenames))
     session.add(obj)
     session.commit()
     return {'status': 'ok'}
@@ -54,9 +61,16 @@ def list_public_posts():
 
 
 @app.post('/posts/private')
-def add_private_post(post: PostIn):
+async def add_private_post(text: str = Form(...), files: List[UploadFile] = File(None)):
     session = get_session()
-    obj = PrivatePost(text=post.text, images=post.images)
+    filenames = []
+    if files:
+        for f in files:
+            dest = os.path.join(UPLOAD_DIR, f.filename)
+            with open(dest, 'wb') as out:
+                out.write(await f.read())
+            filenames.append(dest)
+    obj = PrivatePost(text=text, images=','.join(filenames))
     session.add(obj)
     session.commit()
     return {'status': 'ok'}
