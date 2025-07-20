@@ -64,14 +64,14 @@ def list_public_posts():
 
 
 @app.post('/posts/public/{post_id}/send')
-def send_public_post_endpoint(post_id: int):
+def send_public_post_endpoint(post_id: int, resend: bool = False):
     session = get_session()
     post = session.query(PublicPost).filter_by(id=post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail='Post não encontrado')
-    if post.sent:
+    if post.sent and not resend:
         raise HTTPException(status_code=400, detail='Post já enviado')
-    send_public_post(session, post_id=post_id)
+    send_public_post(session, post_id=post_id, resend=resend)
     return {'status': 'ok'}
 
 
@@ -103,14 +103,14 @@ def list_private_posts():
 
 
 @app.post('/posts/private/{post_id}/send')
-def send_private_post_endpoint(post_id: int):
+def send_private_post_endpoint(post_id: int, resend: bool = False):
     session = get_session()
     post = session.query(PrivatePost).filter_by(id=post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail='Post não encontrado')
-    if post.sent:
+    if post.sent and not resend:
         raise HTTPException(status_code=400, detail='Post já enviado')
-    send_private_post(session, post_id=post_id)
+    send_private_post(session, post_id=post_id, resend=resend)
     return {'status': 'ok'}
 
 

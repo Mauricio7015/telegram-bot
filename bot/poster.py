@@ -49,9 +49,12 @@ def _send_media(chat_id: int, text: str, files: List[str]):
     bot.send_media_group(chat_id=chat_id, media=media)
 
 
-def send_public_post(session: Session, post_id: int | None = None):
+def send_public_post(session: Session, post_id: int | None = None, resend: bool = False):
     if post_id is not None:
-        post = session.query(PublicPost).filter_by(id=post_id, sent=False).first()
+        if resend:
+            post = session.query(PublicPost).filter_by(id=post_id).first()
+        else:
+            post = session.query(PublicPost).filter_by(id=post_id, sent=False).first()
     else:
         post = (
             session.query(PublicPost)
@@ -69,9 +72,12 @@ def send_public_post(session: Session, post_id: int | None = None):
     session.commit()
 
 
-def send_private_post(session: Session, post_id: int | None = None):
+def send_private_post(session: Session, post_id: int | None = None, resend: bool = False):
     if post_id is not None:
-        post = session.query(PrivatePost).filter_by(id=post_id, sent=False).first()
+        if resend:
+            post = session.query(PrivatePost).filter_by(id=post_id).first()
+        else:
+            post = session.query(PrivatePost).filter_by(id=post_id, sent=False).first()
     else:
         post = (
             session.query(PrivatePost)
