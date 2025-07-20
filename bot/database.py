@@ -1,5 +1,14 @@
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    text,
+)
+from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -37,7 +46,24 @@ class BotConfig(Base):
     public_channel_id = Column(Integer, nullable=True)
     private_channel_id = Column(Integer, nullable=True)
 
-Base.metadata.create_all(engine)
+
+def migrate() -> None:
+    """Create missing tables or columns in the SQLite database."""
+    # Create new tables if they don't exist
+    Base.metadata.create_all(engine)
+
+    inspector = inspect(engine)
+    with engine.begin() as conn:
+        for table in Base.metadata.sorted_tables:
+            existing = {col["name"] for col in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name not in existing:
+                    coltype = column.type.compile(engine.dialect)
+                    conn.execute(
+                        text(
+                            f"ALTER TABLE {table.name} ADD COLUMN {column.name} {coltype}"
+                        )
+                    )
 
 def get_session():
     return SessionLocal()

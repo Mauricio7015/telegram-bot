@@ -11,10 +11,13 @@ from bot.database import (
     PublicPost,
     PrivatePost,
     get_bot_config,
+    migrate,
 )
 from telegram.error import TimedOut, NetworkError
 from bot.poster import bot as telegram_bot
 from bot.config import set_channels
+
+migrate()
 
 app = FastAPI()
 app.mount('/static', StaticFiles(directory='web/static'), name='static')
