@@ -22,7 +22,7 @@ Configure as variáveis de ambiente:
 Execute `main.py` para iniciar o bot e o agendador de posts:
 
 ```bash
-python main.py
+python3 main.py
 ```
 
 ### API Web
