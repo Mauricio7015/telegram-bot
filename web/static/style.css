@@ -17,7 +17,7 @@ nav a {
 section {
     margin-bottom: 1.5em;
 }
-textarea, input[type=text] {
+textarea, input[type=text], select {
     width: 100%;
     padding: 6px;
     margin-top: 4px;

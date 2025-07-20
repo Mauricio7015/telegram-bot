@@ -15,16 +15,39 @@
 <h2>Configurar Canais</h2>
 <button onclick="loadChannels()">Carregar Configuração Atual</button>
 <pre id="current-channels"></pre>
-<input id="public-channel" type="text" placeholder="ID canal público">
-<input id="private-channel" type="text" placeholder="ID canal privado">
+<select id="public-channel"></select>
+<select id="private-channel"></select>
 <button onclick="saveChannels()">Salvar</button>
 <script>
 async function loadChannels() {
-    const res = await fetch('/channels/config');
-    const data = await res.json();
-    document.getElementById('current-channels').textContent = JSON.stringify(data, null, 2);
-    document.getElementById('public-channel').value = data.public_channel_id || '';
-    document.getElementById('private-channel').value = data.private_channel_id || '';
+    const [cfgRes, availRes] = await Promise.all([
+        fetch('/channels/config'),
+        fetch('/channels/available')
+    ]);
+    const cfg = await cfgRes.json();
+    const avail = await availRes.json();
+
+    document.getElementById('current-channels').textContent = JSON.stringify(cfg, null, 2);
+
+    const pubSel = document.getElementById('public-channel');
+    const privSel = document.getElementById('private-channel');
+    pubSel.innerHTML = '<option value="">-- selecione --</option>';
+    privSel.innerHTML = '<option value="">-- selecione --</option>';
+
+    for (const ch of avail.channels) {
+        const text = ch.title ? `${ch.title} (${ch.id})` : ch.id;
+        const optPub = document.createElement('option');
+        optPub.value = ch.id;
+        optPub.textContent = text;
+        if (cfg.public_channel_id === ch.id) optPub.selected = true;
+        pubSel.appendChild(optPub);
+
+        const optPriv = document.createElement('option');
+        optPriv.value = ch.id;
+        optPriv.textContent = text;
+        if (cfg.private_channel_id === ch.id) optPriv.selected = true;
+        privSel.appendChild(optPriv);
+    }
 }
 async function saveChannels() {
     const body = {
